@@ -3,12 +3,13 @@
 const fs = require(`fs`);
 const chalk = require(`chalk`);
 const moment = require(`moment`);
-
+const {ExitCode} = require(`@src/constant.js`);
 const {getRandomInt, shuffle} = require(`@src/utils`);
 const data = require(`./data`);
 
 const DEFAULT_COUNT = 1;
 const MAX_COUNT = 5;
+const MAX_POSTS = 1000;
 const FILE_NAME = `mocks.json`;
 
 const getPostDate = () => {
@@ -38,11 +39,16 @@ module.exports = {
 
     const [count] = args;
     const postsCount = Number.parseInt(count, 10) || DEFAULT_COUNT;
+    if (postsCount > MAX_POSTS) {
+      console.error(chalk.redBright(`Max count posts: 1000`));
+      process.exit(ExitCode.ERROR);
+    }
+
     const content = JSON.stringify(generatePosts(postsCount));
 
     fs.writeFile(FILE_NAME, content, (err) => {
       if (err) {
-        return console.err(chalk.redBright(`Can't write data to file...`));
+        return console.error(chalk.redBright(`Can't write data to file...`));
       }
 
       return console.info(chalk.greenBright(`Operation success. File created.`));
