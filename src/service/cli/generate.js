@@ -1,16 +1,19 @@
 'use strict';
 
-const fs = require(`fs`);
+const fs = require(`fs`).promises;
 const chalk = require(`chalk`);
 const moment = require(`moment`);
 const {ExitCode} = require(`@src/constant.js`);
 const {getRandomInt, shuffle} = require(`@src/utils`);
-const data = require(`./data`);
+
 
 const DEFAULT_COUNT = 1;
 const MAX_COUNT = 5;
 const MAX_POSTS = 1000;
 const FILE_NAME = `mocks.json`;
+const FILE_PATH_CATEGORIES = `./data/categories.txt`;
+const FILE_PATH_SENTENCES = `./data/sentences.txt`;
+const FILE_PATH_TITLES = `./data/titles.txt`;
 
 const getPostDate = () => {
   const currentDate = moment();
@@ -20,23 +23,44 @@ const getPostDate = () => {
   return startDate.add(randomDiff, `ms`).format(`YYYY-MM-DD hh:mm:ss`);
 };
 
-const generatePosts = (count) => {
+const readContent = async (filePath) => {
+  try {
+    const content = await fs.readFile(filePath, `utf8`);
+    return content.trim().split(`\n`);
+  } catch (err) {
+    console.error(chalk.redBright(err));
+    return [];
+  }
+};
+
+const writeDataToFile = async (content) => {
+  try {
+    await fs.writeFile(FILE_NAME, content);
+    return console.info(chalk.greenBright(`Operation success. File created.`));
+  } catch (err) {
+    return console.error(chalk.redBright(`Can't write data to file...`));
+  }
+};
+
+const generatePosts = async (count) => {
+  const sentences = await readContent(FILE_PATH_SENTENCES);
+  const categories = await readContent(FILE_PATH_CATEGORIES);
+  const titles = await readContent(FILE_PATH_TITLES);
   return Array(count).fill().map(() => {
-    const fullText = shuffle(data.SENTENCES).slice(0, getRandomInt(MAX_COUNT, data.SENTENCES.length));
+    const fullText = shuffle(sentences).slice(0, getRandomInt(MAX_COUNT, sentences.length));
     return {
-      title: data.TITLES[getRandomInt(1, data.TITLES.length - 1)],
+      title: titles[getRandomInt(1, titles.length - 1)],
       announce: fullText.slice(0, getRandomInt(1, MAX_COUNT)).join(` `),
       fullText: fullText.join(` `),
       createdDate: getPostDate(),
-      сategory: shuffle(data.CATEGORIES).slice(0, getRandomInt(1, MAX_COUNT)),
+      сategory: shuffle(categories).slice(0, getRandomInt(1, MAX_COUNT)),
     };
   });
 };
 
 module.exports = {
   name: `--generate`,
-  run(args) {
-
+  async run(args) {
     const [count] = args;
     const postsCount = Number.parseInt(count, 10) || DEFAULT_COUNT;
     if (postsCount > MAX_POSTS) {
@@ -44,14 +68,8 @@ module.exports = {
       process.exit(ExitCode.ERROR);
     }
 
-    const content = JSON.stringify(generatePosts(postsCount));
+    const content = JSON.stringify(await generatePosts(postsCount));
 
-    fs.writeFile(FILE_NAME, content, (err) => {
-      if (err) {
-        return console.error(chalk.redBright(`Can't write data to file...`));
-      }
-
-      return console.info(chalk.greenBright(`Operation success. File created.`));
-    });
+    writeDataToFile(content);
   }
 };
