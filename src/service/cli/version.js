@@ -1,10 +1,11 @@
 'use strict';
 
 const packageJsonFile = require(`@root/package.json`);
+const {print} = require(`@src/utils`);
 
 module.exports = {
   name: `--version`,
   run() {
-    console.info(`version: ${packageJsonFile.version}`);
+    print.value(`version: ${packageJsonFile.version}`);
   },
 };
