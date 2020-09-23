@@ -1,10 +1,9 @@
 'use strict';
 
 const fs = require(`fs`).promises;
-const chalk = require(`chalk`);
 const moment = require(`moment`);
 const {ExitCode} = require(`@src/constant.js`);
-const {getRandomInt, shuffle} = require(`@src/utils`);
+const {getRandomInt, shuffle, print} = require(`@src/utils`);
 
 
 const DEFAULT_COUNT = 1;
@@ -28,7 +27,7 @@ const readContent = async (filePath) => {
     const content = await fs.readFile(filePath, `utf8`);
     return content.trim().split(`\n`);
   } catch (err) {
-    console.error(chalk.redBright(err));
+    print.err(err);
     return [];
   }
 };
@@ -36,9 +35,9 @@ const readContent = async (filePath) => {
 const writeDataToFile = async (content) => {
   try {
     await fs.writeFile(FILE_NAME, content);
-    return console.info(chalk.greenBright(`Operation success. File created.`));
+    return print.success(`Operation success. File created.`);
   } catch (err) {
-    return console.error(chalk.redBright(`Can't write data to file...`));
+    return print.err(err);
   }
 };
 
@@ -64,7 +63,7 @@ module.exports = {
     const [count] = args;
     const postsCount = Number.parseInt(count, 10) || DEFAULT_COUNT;
     if (postsCount > MAX_POSTS) {
-      console.error(chalk.redBright(`Max count posts: 1000`));
+      print.err(`Max count posts: 1000`);
       process.exit(ExitCode.ERROR);
     }
 
