@@ -1,0 +1,17 @@
+extends layout.pug
+
+block content
+  main
+    h1.visually-hidden Авторизация пользователя
+    section.search-page
+      .search-page__wrapper
+        h2.visually-hidden Форма авторизации
+        .popup__form.popup__form--active.form.form--log-in
+          form(action='#' method='get')
+            .form__field
+              label
+                input(type='email' placeholder='Электронная почта' required)
+            .form__field
+              label
+                input(type='password' placeholder='Пароль' required)
+            button.form__submit-btn.form__submit-btn--log-in.button.button--colored(type='submit') Войти
