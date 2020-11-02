@@ -1,48 +1,32 @@
 'use strict';
 
+const express = require(`express`);
+const app = express();
 const fs = require(`fs`).promises;
-const http = require(`http`);
 const {print} = require(`@src/utils`);
 const {HttpCode} = require(`@src/constant`);
 const DEFAULT_PORT = 3000;
 const FILE_NAME = `mocks.json`;
 
-const sendResponse = (res, statusCode, message) => {
-  const template = `
-    <!Doctype html>
-      <html lang="ru">
-      <head>
-        <title>With love from Node</title>
-      </head>
-      <body>${message}</body>
-    </html>`.trim();
-
-  res.statusCode = statusCode;
-  res.writeHead(statusCode, {
-    'Content-type': `text/html; charset=utf-8`,
-  });
-  res.end(template);
-};
+app.use(express.json());
 
 const onClientConnect = async (req, res) => {
-  const notFoundMessageText = `Not found!`;
-
-  switch (req.url) {
-    case `/`:
-      try {
-        const content = await fs.readFile(FILE_NAME);
-        const data = JSON.parse(content);
-        const items = data.map(({title}) => `<li>${title}</li>`).join(``);
-        sendResponse(res, HttpCode.OK, `<ul>${items}</ul>`);
-      } catch (err) {
-        sendResponse(res, HttpCode.NOT_FOUND, notFoundMessageText);
-      }
-      break;
-    default:
-      sendResponse(res, HttpCode.NOT_FOUND, notFoundMessageText);
-      break;
+  try {
+    const content = await fs.readFile(FILE_NAME);
+    const data = JSON.parse(content);
+    res.send(data);
+  } catch (err) {
+    const emptyData = [];
+    res.send(emptyData);
   }
 };
+
+app.get(`/posts`, onClientConnect);
+
+app.use((req, res) => res
+  .status(HttpCode.NOT_FOUND)
+  .send(`Not found`)
+);
 
 module.exports = {
   name: `--server`,
@@ -50,13 +34,16 @@ module.exports = {
     const [customPort] = args;
     const port = Number.parseInt(customPort, 10) || DEFAULT_PORT;
 
-    http.createServer(onClientConnect)
-    .listen(port)
-    .on(`listening`, (err) => {
-      if (err) {
-        print.err(`Ошибка при создании сервера ${err}`);
-      }
-      print.success(`Ожидаю соединений на ${port}`);
-    });
+    try {
+      app.listen(port, (err) => {
+        if (err) {
+          print.err(err.message);
+        }
+
+        print.success(`Сервер ожидает подключения на порту ${port}`);
+      });
+    } catch (err) {
+      print.err(err.message);
+    }
   }
 };
