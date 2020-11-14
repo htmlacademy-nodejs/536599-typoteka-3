@@ -6,7 +6,7 @@ const {
   DEFAULT_COMMAND,
   USER_ARGV_INDEX,
   ExitCode
-} = require(`@src/constant`);
+} = require(`@src/constants`);
 
 const {Cli} = require(`./cli`);
 

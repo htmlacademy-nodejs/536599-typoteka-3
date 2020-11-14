@@ -1,9 +1,8 @@
 'use strict';
 
 const fs = require(`fs`).promises;
-const moment = require(`moment`);
 const {nanoid} = require(`nanoid`);
-const {ExitCode, MAX_ID_LENGTH} = require(`@src/constant.js`);
+const {ExitCode, MAX_ID_LENGTH} = require(`@src/constants.js`);
 const {getRandomInt, shuffle, print} = require(`@src/utils`);
 
 const DEFAULT_COUNT = 1;
@@ -18,7 +17,21 @@ const FILE_PATH_SENTENCES = `./data/sentences.txt`;
 const FILE_PATH_TITLES = `./data/titles.txt`;
 const FILE_PATH_COMMENTS = `./data/comments.txt`;
 
+const run = async (args) => {
+  const [count] = args;
+  const postsCount = Number.parseInt(count, 10) || DEFAULT_COUNT;
+  if (postsCount > MAX_POSTS) {
+    print.err(`Max count posts: 1000`);
+    process.exit(ExitCode.ERROR);
+  }
+
+  const content = JSON.stringify(await generatePosts(postsCount));
+
+  writeDataToFile(content);
+};
+
 const getPostDate = () => {
+  const moment = require(`moment`);
   const currentDate = moment();
   const startDate = moment(currentDate).subtract(2, `M`).startOf(`M`);
   const diff = currentDate - startDate;
@@ -84,16 +97,5 @@ const generatePosts = async (count) => {
 
 module.exports = {
   name: `--generate`,
-  async run(args) {
-    const [count] = args;
-    const postsCount = Number.parseInt(count, 10) || DEFAULT_COUNT;
-    if (postsCount > MAX_POSTS) {
-      print.err(`Max count posts: 1000`);
-      process.exit(ExitCode.ERROR);
-    }
-
-    const content = JSON.stringify(await generatePosts(postsCount));
-
-    writeDataToFile(content);
-  }
+  run,
 };
