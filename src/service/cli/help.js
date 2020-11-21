@@ -11,6 +11,7 @@ const run = () => {
     --version:            выводит номер версии
     --help:               печатает этот текст
     --generate <count>    формирует файл mocks.json
+    --server:             запуск сервера
   `;
 
   print.info(text);

@@ -8,7 +8,7 @@ const chalk = require(`chalk`);
  * @param {number} max
  * @return {number}
  */
-module.exports.getRandomInt = (min, max) => {
+const getRandomInt = (min, max) => {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -19,7 +19,7 @@ module.exports.getRandomInt = (min, max) => {
  * @param {array} someArray
  * @return {array}
  */
-module.exports.shuffle = (someArray) => {
+const shuffle = (someArray) => {
   for (let i = someArray.length - 1; i > 0; i--) {
     const randomPosition = Math.floor(Math.random() * i);
     [someArray[i], someArray[randomPosition]] = [someArray[randomPosition], someArray[i]];
@@ -31,9 +31,15 @@ module.exports.shuffle = (someArray) => {
 /**
  * Выыодит в консоль раскрашенный текст
  */
-module.exports.print = {
+const print = {
   err: (text) => console.error(chalk.red(text)),
   success: (text) => console.info(chalk.green(text)),
   info: (text) => console.info(chalk.gray(text)),
   value: (text) => console.info(chalk.blue(text)),
+};
+
+module.exports = {
+  getRandomInt,
+  shuffle,
+  print,
 };

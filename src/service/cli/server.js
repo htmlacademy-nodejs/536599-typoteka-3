@@ -1,12 +1,13 @@
 'use strict';
 
-const createServer = (express, app) => {
+const createServer = async (express, app) => {
   const {HttpCode, API_PREFIX} = require(`@src/constants`);
-  const connectRoutes = require(`@service/api/index`);
+  const createRoutes = require(`@service/api/index`);
+  const appRouter = await createRoutes();
 
   app.use(express.json());
 
-  app.use(API_PREFIX, connectRoutes);
+  app.use(API_PREFIX, appRouter);
 
   app.use((_, res) => res
     .status(HttpCode.NOT_FOUND)
@@ -23,7 +24,7 @@ const runServer = async (args) => {
   const DEFAULT_PORT = 3000;
   const port = Number.parseInt(customPort, 10) || DEFAULT_PORT;
 
-  createServer(express, app);
+  await createServer(express, app);
 
   app.listen(port, (err) => {
     if (err) {
