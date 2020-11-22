@@ -64,7 +64,7 @@ const articles = (appRouter, data) => {
       return res.status(HttpCode.NOT_FOUND)
         .send(`Not found`);
     }
-    res.status(HttpCode.OK)
+    return res.status(HttpCode.OK)
       .send(deletedComment);
   });
 };
