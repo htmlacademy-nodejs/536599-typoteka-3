@@ -8,6 +8,7 @@
     "dev": "nodemon ./src/service/service.js --server",
     "start-front-server": "node ./src/express/index",
     "test": "npm run eslint && npm run jest",
+    "test::rest": "npm run jest -t src/service/api/tests/",
     "jest": "jest",
     "eslint": "eslint --ext .js src/"
   },
@@ -40,5 +41,12 @@
     "@root": ".",
     "@src": "./src",
     "@service": "./src/service"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "@root/(.*)": "<rootDir>/$1",
+      "@src/(.*)": "<rootDir>/src/$1",
+      "@service/(.*)": "<rootDir>/src/service/$1"
+    }
   }
 }
