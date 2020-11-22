@@ -60,7 +60,11 @@ const articles = (appRouter, data) => {
     const {article} = res.locals;
     const {commentId} = req.params;
     const deletedComment = services.deleteComment(article, commentId);
-    res.status(HttpCode.OK)
+    if (!deletedComment) {
+      return res.status(HttpCode.NOT_FOUND)
+        .send(`Not found`);
+    }
+    return res.status(HttpCode.OK)
       .send(deletedComment);
   });
 };
