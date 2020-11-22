@@ -162,7 +162,7 @@ describe(`API returns a list of comments by article id`, () => {
 
   beforeAll(async () => {
     response = await request(app)
-      .get(`/articles/${TEST_SECOND_ARTICLE_ID}/comments`);
+      .get(`/articles/${TEST_FIRST_ARTICLE_ID}/comments`);
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
