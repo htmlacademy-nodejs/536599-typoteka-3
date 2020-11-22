@@ -1,49 +1,41 @@
 'use strict';
 
-const express = require(`express`);
-const app = express();
-const fs = require(`fs`).promises;
-const {print} = require(`@src/utils`);
-const {HttpCode} = require(`@src/constant`);
-const DEFAULT_PORT = 3000;
-const FILE_NAME = `mocks.json`;
+const createServer = async (express, app) => {
+  const {HttpCode, API_PREFIX} = require(`@src/constants`);
+  const createRoutes = require(`@service/api/index`);
+  const appRouter = await createRoutes();
 
-app.use(express.json());
+  app.use(express.json());
 
-const onClientConnect = async (req, res) => {
-  try {
-    const content = await fs.readFile(FILE_NAME);
-    const data = JSON.parse(content);
-    res.send(data);
-  } catch (err) {
-    const emptyData = [];
-    res.send(emptyData);
-  }
+  app.use(API_PREFIX, appRouter);
+
+  app.use((_, res) => res
+    .status(HttpCode.NOT_FOUND)
+    .send(`Not found ${HttpCode.NOT_FOUND}`)
+  );
 };
 
-app.get(`/posts`, onClientConnect);
+const runServer = async (args) => {
+  const express = require(`express`);
+  const app = express();
+  const {print} = require(`@src/utils`);
 
-app.use((req, res) => res
-  .status(HttpCode.NOT_FOUND)
-  .send(`Not found`)
-);
+  const [customPort] = args;
+  const DEFAULT_PORT = 3000;
+  const port = Number.parseInt(customPort, 10) || DEFAULT_PORT;
+
+  await createServer(express, app);
+
+  app.listen(port, (err) => {
+    if (err) {
+      print.err(err.message);
+    }
+
+    print.success(`Сервер ожидает подключения на http://localhost:${port}/api`);
+  });
+};
 
 module.exports = {
   name: `--server`,
-  async run(args) {
-    const [customPort] = args;
-    const port = Number.parseInt(customPort, 10) || DEFAULT_PORT;
-
-    try {
-      app.listen(port, (err) => {
-        if (err) {
-          print.err(err.message);
-        }
-
-        print.success(`Сервер ожидает подключения на порту ${port}`);
-      });
-    } catch (err) {
-      print.err(err.message);
-    }
-  }
+  run: runServer,
 };
