@@ -1,12 +1,9 @@
 'use strict';
 
-const {Router} = require(`express`);
-const CategoryService = require(`@service/data-service/category-service`);
+const categories = (appRouter, service) => {
+  const {Router} = require(`express`);
 
-const routes = new Router();
-
-const categories = (appRouter, data) => {
-  const service = new CategoryService(data);
+  const routes = new Router();
 
   appRouter.use(`/categories`, routes);
 

@@ -1,12 +1,10 @@
 'use strict';
 
-const {Router} = require(`express`);
-const {HttpCode} = require(`@src/constants`);
-const ArticleService = require(`@service/data-service/article-service`);
-const routes = new Router();
+const search = (appRouter, services) => {
+  const {Router} = require(`express`);
+  const {HttpCode} = require(`@src/constants`);
+  const routes = new Router();
 
-const search = (appRouter, data) => {
-  const services = new ArticleService(data);
   appRouter.use(`/search`, routes);
 
   routes.get(`/`, (req, res) => {

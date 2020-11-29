@@ -19,6 +19,10 @@ class ArticleService {
     return newArticle;
   }
 
+  setData(articles) {
+    this._articles = articles;
+  }
+
   drop(article) {
     this._articles = this._articles.filter((item) => item !== article);
     return article;

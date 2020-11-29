@@ -3,13 +3,15 @@
 const createServer = require(`./create-server`);
 const request = require(`supertest`);
 const {HttpCode} = require(`@src/constants`);
-const search = require(`@service/api/search`);
 
+const search = require(`@service/api/search`);
+const ArticleService = require(`@service/data-service/article-service`);
 const mockData = require(`./mocks-data.json`);
 
-const app = createServer(search, mockData);
+const services = new ArticleService(mockData);
+const app = createServer(search, services);
 
-describe(`API returns offer based on search query`, () => {
+describe(`API returns article based on search query`, () => {
 
   let response;
 

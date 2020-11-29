@@ -4,13 +4,13 @@ const createServer = require(`./create-server`);
 const request = require(`supertest`);
 const {HttpCode} = require(`@src/constants`);
 const articles = require(`@service/api/articles`);
+const ArticleService = require(`@service/data-service/article-service`);
 
 const mockData = require(`./mocks-data.json`);
 
 const TEST_ARTICLES_COUNT = 3;
 const TEST_FIRST_ARTICLE_ID = `IQxM4v`;
-const TEST_SECOND_ARTICLE_ID = `DZX6S2`;
-const TEST_COMMENT_ID = `zDl7KE`;
+const TEST_COMMENT_ID = `9fbIZo`;
 const TEST_COMMENTS_COUNT = 3;
 
 const validArticleData = {
@@ -31,16 +31,13 @@ const invalidArticleData = {
   сategory: [],
 };
 
-const createApi = () => {
-  const cloneData = JSON.parse(JSON.stringify(mockData));
-  return createServer(articles, cloneData);
-};
+const services = new ArticleService(mockData);
+const app = createServer(articles, services);
 
 describe(`Get all articles`, () => {
   let response;
 
   beforeAll(async () => {
-    const app = createApi();
     response = await request(app)
       .get(`/articles`);
   });
@@ -53,7 +50,6 @@ describe(`Get article by id`, () => {
   let response;
 
   beforeAll(async () => {
-    const app = createApi();
     response = await request(app)
       .get(`/articles/${TEST_FIRST_ARTICLE_ID}`);
   });
@@ -68,7 +64,6 @@ describe(`Create new article`, () => {
   let response;
 
   beforeAll(async () => {
-    const app = createApi();
     response = await request(app)
       .post(`/articles`)
       .send(validArticleData);
@@ -82,7 +77,6 @@ describe(`Refuse create if data is invalid`, () => {
   let response;
 
   beforeAll(async () => {
-    const app = createApi();
     response = await request(app)
       .post(`/articles`)
       .send(invalidArticleData);
@@ -93,8 +87,6 @@ describe(`Refuse create if data is invalid`, () => {
 
 describe(`Change existent article`, () => {
   let response;
-  const app = createApi();
-
   beforeAll(async () => {
     response = await request(app)
       .put(`/articles/${TEST_FIRST_ARTICLE_ID}`)
@@ -114,7 +106,6 @@ describe(`Change non-existent article`, () => {
   let response;
 
   beforeAll(async () => {
-    const app = createApi();
     response = await request(app)
       .post(`/articles/noExist`)
       .send(validArticleData);
@@ -127,7 +118,6 @@ describe(`Change existent article with invalid data`, () => {
   let response;
 
   beforeAll(async () => {
-    const app = createApi();
     response = await request(app)
       .put(`/articles/${TEST_FIRST_ARTICLE_ID}`)
       .send(invalidArticleData);
@@ -137,8 +127,6 @@ describe(`Change existent article with invalid data`, () => {
 });
 
 describe(`Delete article`, () => {
-  const app = createApi();
-
   test(`Delete existen article`, async () => {
     await request(app)
       .delete(`/articles/${TEST_FIRST_ARTICLE_ID}`)
@@ -155,12 +143,11 @@ describe(`Delete article`, () => {
 
 /* Comments tests */
 describe(`API returns a list of comments by article id`, () => {
-
-  const app = createApi();
-
   let response;
 
   beforeAll(async () => {
+    const cloneData = JSON.parse(JSON.stringify(mockData));
+    services.setData(cloneData);
     response = await request(app)
       .get(`/articles/${TEST_FIRST_ARTICLE_ID}/comments`);
   });
@@ -174,16 +161,15 @@ describe(`API returns a list of comments by article id`, () => {
 });
 
 describe(`API creates a comment if data is valid`, () => {
-
   const newComment = {
     text: `Валидному комментарию достаточно этого поля`
   };
-  const app = createApi();
+
   let response;
 
   beforeAll(async () => {
     response = await request(app)
-      .post(`/articles/${TEST_SECOND_ARTICLE_ID}/comments`)
+      .post(`/articles/${TEST_FIRST_ARTICLE_ID}/comments`)
       .send(newComment);
   });
 
@@ -194,16 +180,13 @@ describe(`API creates a comment if data is valid`, () => {
   test(`Returns comment created`, () => expect(response.body).toEqual(expect.objectContaining(newComment)));
 
   test(`Comments count is changed`, () => request(app)
-    .get(`/articles/${TEST_SECOND_ARTICLE_ID}/comments`)
+    .get(`/articles/${TEST_FIRST_ARTICLE_ID}/comments`)
     .expect((res) => expect(res.body.length).toBe(TEST_COMMENTS_COUNT + 1))
   );
 
 });
 
 test(`API refuses to create a comment to non-existent article and returns status code 404`, () => {
-
-  const app = createApi();
-
   return request(app)
     .post(`/articles/NOEXST/comments`)
     .send({
@@ -214,25 +197,19 @@ test(`API refuses to create a comment to non-existent article and returns status
 });
 
 test(`API refuses to create a comment when data is invalid, and returns status code 400`, () => {
-
-  const app = createApi();
-
   return request(app)
-    .post(`/articles/${TEST_SECOND_ARTICLE_ID}/comments`)
+    .post(`/articles/${TEST_FIRST_ARTICLE_ID}/comments`)
     .send({})
     .expect(HttpCode.BAD_REQUEST);
 
 });
 
 describe(`API correctly deletes a comment`, () => {
-
-  const app = createApi();
-
   let response;
 
   beforeAll(async () => {
     response = await request(app)
-      .delete(`/articles/${TEST_SECOND_ARTICLE_ID}/comments/${TEST_COMMENT_ID}`);
+      .delete(`/articles/${TEST_FIRST_ARTICLE_ID}/comments/${TEST_COMMENT_ID}`);
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
@@ -240,26 +217,20 @@ describe(`API correctly deletes a comment`, () => {
   test(`Returns comment deleted`, () => expect(response.body.id).toBe(TEST_COMMENT_ID));
 
   test(`Comments count is 3 now`, () => request(app)
-    .get(`/articles/${TEST_SECOND_ARTICLE_ID}/comments`)
+    .get(`/articles/${TEST_FIRST_ARTICLE_ID}/comments`)
     .expect((res) => expect(res.body.length).toBe(3))
   );
 
 });
 
 test(`API refuses to delete non-existent comment`, () => {
-
-  const app = createApi();
-
   return request(app)
-    .delete(`/articles/${TEST_SECOND_ARTICLE_ID}/comments/NOEXST`)
+    .delete(`/articles/${TEST_FIRST_ARTICLE_ID}/comments/NOEXST`)
     .expect(HttpCode.NOT_FOUND);
 
 });
 
 test(`API refuses to delete a comment to non-existent article`, () => {
-
-  const app = createApi();
-
   return request(app)
     .delete(`/articles/NOEXST/comments/${TEST_COMMENT_ID}`)
     .expect(HttpCode.NOT_FOUND);
