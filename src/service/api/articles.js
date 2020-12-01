@@ -4,14 +4,12 @@ const {Router} = require(`express`);
 const {HttpCode} = require(`@src/constants`);
 const bodyValidator = require(`@service/middlewares/body-validator.js`);
 const articleExist = require(`@service/middlewares/article-exist.js`);
-const ArticleService = require(`@service/data-service/article-service`);
 const COMMENT_KEYS = [`text`];
 const ARTICLE_KEYS = [`title`, `announce`, `fullText`, `createdDate`, `сategory`];
 
-const routes = new Router();
+const articles = (appRouter, services) => {
+  const routes = new Router();
 
-const articles = (appRouter, data) => {
-  const services = new ArticleService(data);
   appRouter.use(`/articles`, routes);
 
   routes.get(`/`, (_, res) => res.send(services.findAll()));
@@ -60,7 +58,11 @@ const articles = (appRouter, data) => {
     const {article} = res.locals;
     const {commentId} = req.params;
     const deletedComment = services.deleteComment(article, commentId);
-    res.status(HttpCode.OK)
+    if (!deletedComment) {
+      return res.status(HttpCode.NOT_FOUND)
+        .send(`Not found`);
+    }
+    return res.status(HttpCode.OK)
       .send(deletedComment);
   });
 };

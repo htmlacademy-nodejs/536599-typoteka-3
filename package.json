@@ -4,10 +4,13 @@
   "description": "Типотека",
   "main": "./src/service/service.js",
   "scripts": {
-    "start": "node ./src/service/service.js",
-    "dev": "nodemon ./src/service/service.js --server",
+    "start": "cross-env NODE_ENV=production node ./src/service/service.js --server",
+    "start::debug": "cross-env NODE_ENV=development LOG_LEVEL=debug node ./src/service/service.js --server",
+    "dev": "cross-env NODE_ENV=development nodemon ./src/service/service.js --server",
     "start-front-server": "node ./src/express/index",
-    "test": "npm run eslint",
+    "test": "npm run eslint && npm run jest",
+    "test::rest": "npm run jest -t src/service/api/tests/",
+    "jest": "jest",
     "eslint": "eslint --ext .js src/"
   },
   "repository": {
@@ -23,19 +26,31 @@
   "devDependencies": {
     "eslint": "7.7.0",
     "eslint-config-htmlacademy": "0.5.2",
-    "nodemon": "2.0.4"
+    "jest": "26.6.3",
+    "nodemon": "2.0.4",
+    "pino-pretty": "4.3.0",
+    "supertest": "6.0.1"
   },
   "dependencies": {
     "chalk": "4.1.0",
+    "cross-env": "7.0.2",
     "express": "4.17.1",
     "module-alias": "2.2.2",
     "moment": "2.27.0",
     "nanoid": "3.1.16",
+    "pino": "6.7.0",
     "pug": "3.0.0"
   },
   "_moduleAliases": {
     "@root": ".",
     "@src": "./src",
     "@service": "./src/service"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "@root/(.*)": "<rootDir>/$1",
+      "@src/(.*)": "<rootDir>/src/$1",
+      "@service/(.*)": "<rootDir>/src/service/$1"
+    }
   }
 }
