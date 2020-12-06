@@ -36,7 +36,7 @@ const getPostDate = () => {
   const startDate = moment(currentDate).subtract(2, `M`).startOf(`M`);
   const diff = currentDate - startDate;
   const randomDiff = getRandomInt(0, diff);
-  return startDate.add(randomDiff, `ms`).format(`YYYY-MM-DD hh:mm:ss`);
+  return startDate.add(randomDiff, `ms`).format(`YYYY-MM-DDThh:mm:ss`);
 };
 
 const readContent = async (filePath) => {

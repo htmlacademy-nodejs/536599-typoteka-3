@@ -51,7 +51,8 @@
     "moduleNameMapper": {
       "@root/(.*)": "<rootDir>/$1",
       "@src/(.*)": "<rootDir>/src/$1",
-      "@service/(.*)": "<rootDir>/src/service/$1"
+      "@service/(.*)": "<rootDir>/src/service/$1",
+      "@express/(.*)": "<rootDir>/src/express/$1"
     }
   }
 }
