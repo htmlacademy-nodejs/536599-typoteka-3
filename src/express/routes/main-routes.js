@@ -11,10 +11,25 @@ const pageContent = {
   title: `Типотека`,
 };
 
+const getCategoriesWithArticleCount = (articles) => {
+  const countInCategories = articles.reduce((categoryWithFrequency, article) => {
+    for (let category of article.categories) {
+      const currCount = categoryWithFrequency[category.name] ? categoryWithFrequency[category.name].count + 1 : 1;
+      categoryWithFrequency[category.name] = {
+        ...category,
+        count: currCount,
+      };
+    }
+    return categoryWithFrequency;
+  }, {});
+  return countInCategories;
+};
+
 routes.get(`/`, async (_req, res) => {
   try {
     const articles = await api.getArticles();
-    res.render(`main.pug`, {articles});
+    const categories = getCategoriesWithArticleCount(articles);
+    res.render(`main.pug`, {articles, categories});
   } catch (err) {
     sendServerError(res, err);
   }

@@ -4,10 +4,11 @@
   "description": "Типотека",
   "main": "./src/service/service.js",
   "scripts": {
-    "start": "cross-env NODE_ENV=production node ./src/service/service.js --server",
+    "start": "cross-env NODE_ENV=production node ./src/service/service.js",
     "start::debug": "cross-env NODE_ENV=development LOG_LEVEL=debug node ./src/service/service.js --server",
     "dev": "cross-env NODE_ENV=development nodemon ./src/service/service.js --server",
     "start-front-server": "node ./src/express/index",
+    "start-all": "concurrently \"npm:start::debug\" \"npm:start-front-server\"",
     "test": "npm run eslint && npm run jest",
     "test::rest": "npm run jest -t src/service/api/tests/",
     "jest": "jest",
@@ -24,6 +25,7 @@
   },
   "homepage": "https://github.com/RDemian/536599-typoteka-3#readme",
   "devDependencies": {
+    "concurrently": "^5.3.0",
     "eslint": "7.7.0",
     "eslint-config-htmlacademy": "0.5.2",
     "jest": "26.6.3",

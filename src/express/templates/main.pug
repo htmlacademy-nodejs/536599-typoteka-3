@@ -16,16 +16,15 @@ block content
         each article in articles
           li.preview__item
             ul.preview__breadcrumbs
-              li.preview__breadcrumbs-item
-                a.preview__breadcrumbs-link(href='#') Дизайн
-              li.preview__breadcrumbs-item
-                a.preview__breadcrumbs-link(href='#') Удаленная работа
+              each category in article.categories
+                li.preview__breadcrumbs-item
+                  a.preview__breadcrumbs-link(href='#') #{category.name}
             .preview__background
-              img.preview__background-image(src='img/skyscraper@1x.jpg' width='460' height='240' srcset='img/skyscraper@1x.jpg, img/skyscraper@2x.jpg 2x' alt='Фотография небоскреба')
+              img.preview__background-image(src=`https://picsum.photos/460/240?random=${article.id}` width='460' height='240' alt='')
             time.preview__time(datetime=`${article.createdDate}`) #{article.createdDate.slice(0, 10)}, #{article.createdDate.slice(11, 16)}
             h3.preview__name
-              a.preview__name-link(href='#') #{article.title}
-            p.preview__text #{article.announce}
+              a.preview__name-link(href=`/articles/${article.id}`) #{article.title}
+            p.preview__text #{article.announce.slice(0, 100) + `...`}
             a.preview__comment(href='#')
               | Комментарии 
               span.preview__cloud

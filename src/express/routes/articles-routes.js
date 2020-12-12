@@ -55,7 +55,6 @@ articles.get(`/edit/:id`, async (req, res) => {
   try {
     const {id} = req.params;
     const article = await api.getArticle(id);
-
     res.render(`articles/edit.pug`, {article});
   } catch (err) {
     sendServerError(res, err);
@@ -70,9 +69,11 @@ articles.get(`/category/:id`, (_req, res) => {
   res.render(`articles/category/category-id.pug`, pageContent);
 });
 
-articles.get(`/:id`, (_req, res) => {
-  pageContent.headerType = `auth`;
-  res.render(`articles/article-id.pug`, pageContent);
+articles.get(`/:id`, async (req, res) => {
+  const {id} = req.params;
+  const article = await api.getArticle(id);
+  const categories = article.categories;
+  res.render(`articles/article-id.pug`, {article, categories});
 });
 
 module.exports = articles;

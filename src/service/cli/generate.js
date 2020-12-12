@@ -73,6 +73,16 @@ const generateComments = (comments) => {
   });
 };
 
+const generateCategories = (categories) => {
+  const randomCategories = shuffle(categories).slice(0, getRandomInt(1, MAX_CATEGORIES_COUNT));
+  return randomCategories.map((categoryName) => {
+    return {
+      id: nanoid(MAX_ID_LENGTH),
+      name: categoryName,
+    };
+  });
+};
+
 const generatePosts = async (count) => {
   const sentences = await readContent(FILE_PATH_SENTENCES);
   const categories = await readContent(FILE_PATH_CATEGORIES);
@@ -89,7 +99,7 @@ const generatePosts = async (count) => {
       announce: fullText.slice(0, announceSize).join(` `),
       fullText: fullText.join(` `),
       createdDate: getPostDate(),
-      сategory: shuffle(categories).slice(0, getRandomInt(1, MAX_CATEGORIES_COUNT)),
+      categories: generateCategories(categories),
       comments: generateComments(comments),
     };
   });
