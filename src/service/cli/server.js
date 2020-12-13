@@ -8,6 +8,7 @@ const createServer = async (express, app) => {
   const appRouter = await createRoutes();
 
   app.use(express.json());
+  app.use(express.urlencoded({extended: false}));
 
   app.use((req, res, next) => {
     logger.debug(`Request on route: ${req.url}`);
